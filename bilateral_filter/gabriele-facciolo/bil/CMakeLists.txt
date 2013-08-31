@@ -13,7 +13,7 @@ if (NOT TARGET IIOLIB)
    include_directories("iio")
    add_subdirectory(iio)
 endif() 
-SET( LIBS ${LIBS} IIOLIB)
+SET( LIBS ${LIBS} IIOLIB m)
 
 
 # OPENMP
