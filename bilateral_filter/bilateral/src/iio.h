@@ -284,9 +284,9 @@ void iio_save_image_uint8_matrix(char *f, unsigned char **x, int w, int h);
 //
 //
 
-//#define I_CAN_HAS_LIBPNG
-//#define I_CAN_HAS_LIBJPEG
-//#define I_CAN_HAS_LIBTIFF
+#define I_CAN_HAS_LIBPNG
+#define I_CAN_HAS_LIBJPEG
+#define I_CAN_HAS_LIBTIFF
 //#define I_CAN_HAS_LIBEXR
 
 #endif//_IIO_H
