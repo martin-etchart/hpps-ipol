@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 2.6)
 
 find_package(OpenCV)
 
-set(CMAKE_C_FLAGS "-g3 -std=c99 ") #-pedantic-errors -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "-g -std=c99 ") #-pedantic-errors -Wall -Wextra -Werror")
 set(CMAKE_L_FLAGS)
 
 set(CMAKE_BUILD_TYPE "Release")
@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "-D_ENGLISH")
 
 set(bilateral_src bilateral.c iio.c)
 set(bilateral_inc bilateral.h iio.h)
-set(bilateral_libs -lm ${OpenCV_LIBS})
+set(bilateral_libs m png jpeg tiff ${OpenCV_LIBS})
 
 add_executable(testbilateral testbilateral.c ${bilateral_src})
 target_link_libraries(testbilateral ${bilateral_libs})
