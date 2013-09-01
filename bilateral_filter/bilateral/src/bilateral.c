@@ -22,7 +22,7 @@
 //}
 
 data_t d(unsigned int eps[2], unsigned int x[2]) {
-    return hypot((double)(eps[0]-x[0]), (double)(eps[1]-x[1]));
+    return hypot((double)(eps[0])-(double)(x[0]), (double)(eps[1])-(double)(x[1]));
 }
 
 /**
