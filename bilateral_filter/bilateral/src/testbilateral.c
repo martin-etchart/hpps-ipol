@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
-
 void iio_save_image_double_(char* filename_out, double*in,int w,int h){
     int N=w*h;
     float *tmp=malloc(N*sizeof(*tmp));
@@ -31,23 +28,14 @@ int main () {
     int w = 0;
     int h = 0;
     
-    data_t *img_in = iio_read_image_double_(filename_in, &w, &h);  
     
-    data_t *img_out = bilateral(img_in, w, h, 25.6, 16.0);
+    float *img_in = iio_read_image_float(filename_in, &w, &h);  
     
-//    IplImage *image_out = cvCreateImage(cvSize(w,h),8,1);
-//    
-//    for (int i = 0; i < w; i++) {
-//        for (int j = 0; j < h; j++) {
-//            image_out->imageData[ i + j * w ] = (uchar) round( img_out[ i + j * w] );
-//        }
-//    } 
-//    
-//    cvSaveImage(filename_out,image_out,0);    
-//    cvReleaseImage(&image_out);
-
+    float *img_out = malloc(w * h * sizeof (float));;
     
-    iio_save_image_double_((char *)filename_out, img_out, w, h);
+    bilateral(img_in, img_out, w, h, 30.0, 3.0);
+    
+    iio_save_image_float((char *)filename_out, img_out, w, h);
     
     free(img_in);
     free(img_out);

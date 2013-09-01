@@ -13,9 +13,7 @@
 
 #include "bilateral.h"
 
-/*
- * 
- */
+//FIXME: this excecutable gives different result to testbilateral, debugg if needed.
 int main(int argc, char** argv) {
     
     const char * filename_in = "../../data/Lena.pgm";
@@ -27,26 +25,27 @@ int main(int argc, char** argv) {
     int height = image->height;
     int depth = image->depth;
     
-    data_t *f = malloc(width * height * sizeof (data_t));
+    float *f = malloc(width * height * sizeof (float));
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            f[ i + j * width ] = (data_t) image->imageData[ i + j * width];
+            f[ i + j * width ] = image->imageData[ i + j * width];
         }
     }
     cvReleaseImage(&image);
     
-    data_t *h = bilateral(f, width, height, 100.0, 1.0);
+    float * h = malloc(width * height * sizeof (float));
+    bilateral(f, h, width, height, 30.0, 3.0);
     free(f);
     
     IplImage *image_out = cvCreateImage(cvSize(width,height),depth,1);
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            image_out->imageData[ i + j * width ] = (uchar) round( h[ i + j * width] );
+            image_out->imageData[ i + j * width ] = h[ i + j * width];
         }
     }
-    free(h);    
+    free(h);  
     
     cvSaveImage(filename_out,image_out,0);
     

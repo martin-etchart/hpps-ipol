@@ -4,25 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-//data_t * bilateral(const data_t * img_in, int width, int height, int sigma_d, double sigma_r) {
-//
-//    data_t * img_out = malloc(width * height * sizeof (data_t));
-//
-//    //img copy
-//    for (int i = 0; i < height; i++) {
-//        for (int j = 0; j < width; j++) {
-//            img_out[i * width + j] = img_in[i * width + j];
-//        }
-//    }
-//    
-//    sigma_r = sigma_d;
-//    sigma_d = sigma_r;
-//
-//    return img_out;
-//}
-
-data_t d(unsigned int eps[2], unsigned int x[2]) {
-    return hypot((double)(eps[0])-(double)(x[0]), (double)(eps[1])-(double)(x[1]));
+float d(int eps[2], int x[2]) {
+    return hypot(eps[0]-x[0], eps[1]-x[1]);
 }
 
 /**
@@ -32,11 +15,11 @@ data_t d(unsigned int eps[2], unsigned int x[2]) {
  * @param sigma_d
  * @return 
  */
-data_t c(unsigned int eps[2], unsigned int x[2], double sigma_d) {
+float c(int eps[2], int x[2], double sigma_d) {
     return exp(-0.5*pow((d(eps,x)/sigma_d),2.0));
 }
 
-data_t delta(data_t phi, data_t f) {
+float delta(float phi, float f) {
     return fabs(phi-f);    
 }
 
@@ -47,35 +30,31 @@ data_t delta(data_t phi, data_t f) {
  * @param sigma_r
  * @return 
  */
-data_t s(data_t phi, data_t f, double sigma_r) {
+float s(float phi, float f, double sigma_r) {
     return exp(-0.5*pow((delta(phi,f)/sigma_r),2.0));
 }
 
 
 
-data_t * bilateral(const data_t * f, int width, int height, double sigma_r, double sigma_d) {
-
-    data_t * h = malloc(width * height * sizeof (data_t));
+void bilateral(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
+     
+    int win = 2 * sigma_d;
     
-//    unsigned int win = (unsigned int) sigma_d/2;
-
-    unsigned int win =16;
-    
-    for (unsigned int i = win; i < height-win; i++) {
-        for (unsigned int j = win; j < width-win; j++) {
+    for (int j = win; j < height - (win + 1); j++) {
+        for (int i = win; i < width - (win + 1); i++) {
             
-            unsigned int x[2] = {i,j};
-            unsigned int _x = i*width+j;
+            int x[2] = {i,j};
+            int _x = i + j * width;
             
-            data_t k = 0;
-            data_t b = 0;
-            for (unsigned int u = i-win; u < i+win; u++) {
-                for (unsigned int v = j-win; v < j+win; v++) {
+            float k = 0;
+            float b = 0;
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
                     
-                    unsigned int eps[2] = {u,v};
-                    unsigned int _eps = u*width+v;
+                    int eps[2] = {u, v};
+                    int _eps = u + v * width;
                     
-                    data_t cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
+                    float cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
                     b+=f[_eps]*cs;                  
                     k+=cs;
                 }
@@ -84,6 +63,4 @@ data_t * bilateral(const data_t * f, int width, int height, double sigma_r, doub
             h[_x] = (1.0/k) * b;
         }
     }
-
-    return h;
 }

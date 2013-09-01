@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "-D_ENGLISH")
 
 set(bilateral_src bilateral.c iio.c)
 set(bilateral_inc bilateral.h iio.h)
-set(bilateral_libs m png jpeg tiff ${OpenCV_LIBS})
+set(bilateral_libs m png jpeg tiff)
 
 add_executable(testbilateral testbilateral.c ${bilateral_src})
 target_link_libraries(testbilateral ${bilateral_libs})
@@ -28,5 +28,4 @@ if(OpenCV_FOUND)
 
     add_executable(testbilateral_opencv testbilateral_opencv.c ${bilateral_src})
     target_link_libraries(testbilateral_opencv ${bilateral_libs} ${OpenCV_LIBS})
-
 endif(OpenCV_FOUND)
