@@ -22,7 +22,7 @@
 //}
 
 data_t d(unsigned int eps[2], unsigned int x[2]) {
-    return sqrt(pow(eps[0]-x[0],2) + pow(eps[1]-x[1],2));
+    return hypot((double)(eps[0]-x[0]), (double)(eps[1]-x[1]));
 }
 
 /**
@@ -33,7 +33,7 @@ data_t d(unsigned int eps[2], unsigned int x[2]) {
  * @return 
  */
 data_t c(unsigned int eps[2], unsigned int x[2], double sigma_d) {
-    return exp(-0.5*pow((d(eps,x)/sigma_d),2));
+    return exp(-0.5*pow((d(eps,x)/sigma_d),2.0));
 }
 
 data_t delta(data_t phi, data_t f) {
@@ -48,7 +48,7 @@ data_t delta(data_t phi, data_t f) {
  * @return 
  */
 data_t s(data_t phi, data_t f, double sigma_r) {
-    return exp(-0.5*pow((delta(phi,f)/sigma_r),2));
+    return exp(-0.5*pow((delta(phi,f)/sigma_r),2.0));
 }
 
 
@@ -59,7 +59,7 @@ data_t * bilateral(const data_t * f, int width, int height, double sigma_r, doub
     
 //    unsigned int win = (unsigned int) sigma_d/2;
 
-    unsigned int win = 16;
+    unsigned int win =16;
     
     for (unsigned int i = win; i < height-win; i++) {
         for (unsigned int j = win; j < width-win; j++) {
@@ -73,7 +73,7 @@ data_t * bilateral(const data_t * f, int width, int height, double sigma_r, doub
                 for (unsigned int v = j-win; v < j+win; v++) {
                     
                     unsigned int eps[2] = {u,v};
-                    unsigned int _eps = u*win+v;
+                    unsigned int _eps = u*width+v;
                     
                     data_t cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
                     b+=f[_eps]*cs;                  
