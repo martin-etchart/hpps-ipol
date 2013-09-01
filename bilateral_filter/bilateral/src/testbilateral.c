@@ -35,16 +35,16 @@ int main () {
     
     data_t *img_out = bilateral(img_in, w, h, 25.6, 16.0);
     
-    IplImage *image_out = cvCreateImage(cvSize(w,h),8,1);
-    
-    for (int i = 0; i < w; i++) {
-        for (int j = 0; j < h; j++) {
-            image_out->imageData[ i + j * w ] = (uchar) round( img_out[ i + j * w] );
-        }
-    } 
-    
-    cvSaveImage(filename_out,image_out,0);    
-    cvReleaseImage(&image_out);
+//    IplImage *image_out = cvCreateImage(cvSize(w,h),8,1);
+//    
+//    for (int i = 0; i < w; i++) {
+//        for (int j = 0; j < h; j++) {
+//            image_out->imageData[ i + j * w ] = (uchar) round( img_out[ i + j * w] );
+//        }
+//    } 
+//    
+//    cvSaveImage(filename_out,image_out,0);    
+//    cvReleaseImage(&image_out);
 
     
     iio_save_image_double_((char *)filename_out, img_out, w, h);
