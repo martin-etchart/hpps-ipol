@@ -2,7 +2,7 @@
 #define BILATERAL_H
 
 /**
- * Bilateral filter. Tomasi et Al implementation.
+ * Bilateral filter. Implementation of paper "Bilateral Filtering for Gray and Color Images" by C. Tomasi and R. Manduchi.
  * @param f Input image. Grayscale float image.
  * @param h Output image. Grayscale float image. [Alloc before call]
  * @param width

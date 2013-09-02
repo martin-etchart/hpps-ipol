@@ -16,7 +16,7 @@ float d(int eps[2], int x[2]) {
  * @return 
  */
 float c(int eps[2], int x[2], double sigma_d) {
-    return exp(-0.5*pow((d(eps,x)/sigma_d),2.0));
+    return exp(-0.5*powf((d(eps,x)/sigma_d),2.0));
 }
 
 float delta(float phi, float f) {
@@ -31,7 +31,7 @@ float delta(float phi, float f) {
  * @return 
  */
 float s(float phi, float f, double sigma_r) {
-    return exp(-0.5*pow((delta(phi,f)/sigma_r),2.0));
+    return exp(-0.5*powf((delta(phi,f)/sigma_r),2.0));
 }
 
 
