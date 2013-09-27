@@ -15,17 +15,20 @@ set(CMAKE_L_FLAGS)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-D_ENGLISH")
 
-set(bilateral_src bilateral.c iio.c)
-set(bilateral_inc bilateral.h iio.h)
+set(bilateral_src bilateral.c iio.c color_spaces.c)
+set(bilateral_inc bilateral.h iio.h color_spaces.h)
 set(bilateral_libs m png jpeg tiff)
 
-add_executable(testbilateral testbilateral.c ${bilateral_src})
-target_link_libraries(testbilateral ${bilateral_libs})
+add_executable(test_bilateral_grayscale test_bilateral_grayscale.c ${bilateral_src})
+target_link_libraries(test_bilateral_grayscale ${bilateral_libs})
+
+add_executable(test_bilateral test_bilateral.c ${bilateral_src})
+target_link_libraries(test_bilateral ${bilateral_libs})
 
 if(OpenCV_FOUND)
     INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
     LINK_DIRECTORIES(${OpenCV_LIB_DIR})
 
-    add_executable(testbilateral_opencv testbilateral_opencv.c ${bilateral_src})
-    target_link_libraries(testbilateral_opencv ${bilateral_libs} ${OpenCV_LIBS})
+    add_executable(test_bilateral_opencv test_bilateral_opencv.c ${bilateral_src})
+    target_link_libraries(test_bilateral_opencv ${bilateral_libs} ${OpenCV_LIBS})
 endif(OpenCV_FOUND)

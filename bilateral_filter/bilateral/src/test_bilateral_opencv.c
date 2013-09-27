@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     cvReleaseImage(&image);
     
     float * h = malloc(width * height * sizeof (float));
-    bilateral(f, h, width, height, 30.0, 3.0);
+    bilateral_grayscale(f, h, width, height, 30.0, 3.0);
     free(f);
     
     IplImage *image_out = cvCreateImage(cvSize(width,height),depth,1);

@@ -23,7 +23,7 @@ double *iio_read_image_double_(const char *fname, int *w, int *h) {
 int main () {
     
     const char * filename_in = "../../data/Lena.pgm";
-    const char * filename_out = "../../data/Lena.out.png";
+    const char * filename_out = "../../data/Lena.grayscale.out.png";
     
     int w = 0;
     int h = 0;
@@ -31,9 +31,9 @@ int main () {
     
     float *img_in = iio_read_image_float(filename_in, &w, &h);  
     
-    float *img_out = malloc(w * h * sizeof (float));;
+    float *img_out = malloc(w * h * sizeof (float));
     
-    bilateral(img_in, img_out, w, h, 30.0, 3.0);
+    bilateral_grayscale(img_in, img_out, w, h, 30.0, 3.0);
     
     iio_save_image_float((char *)filename_out, img_out, w, h);
     
