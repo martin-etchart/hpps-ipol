@@ -1,5 +1,7 @@
 #include "bilateral.h"
 
+#include "color_spaces.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -34,6 +36,30 @@ float s(float phi, float f, double sigma_r) {
     return exp(-0.5*powf((delta(phi,f)/sigma_r),2.0));
 }
 
+/**
+ * Similarity function in cielab color space
+ * @param phi
+ * @param f
+ * @param sigma_r
+ * @param nch
+ * @return 
+ */
+float s_vec(float *phi, float *f, double sigma_r, int nch) {
+    float dist = 0;
+    
+    float phi_cielab = 0;
+    float f_cielab = 0;
+    
+    for (int l = 0; l < nch; l++) {
+        rgb_to_cielab_floats( &f_cielab, f+l);
+        rgb_to_cielab_floats( &phi_cielab, phi+l);
+        dist+= powf(f_cielab-phi_cielab,2.0);
+    }
+    dist = sqrtf(dist);
+    
+    return exp(-0.5*powf((dist/sigma_r),2.0));
+}
+
 // prolong with last value at the boundary
 // returns the index of the 2d row major image
 unsigned int p_prolong(int nx, int ny, int x, int y) 
@@ -41,15 +67,6 @@ unsigned int p_prolong(int nx, int ny, int x, int y)
    x = (x < 0) ? 0 : ( (x>=nx) ? nx-1 : x );
    y = (y < 0) ? 0 : ( (y>=ny) ? ny-1 : y );
    return x+nx*y;
-}
-
-// prolong with last value at the boundary
-// returns the index of the 2d row major image
-unsigned int p_prolong_vec(int nx, int ny, int nz ,int x, int y, int z) 
-{ 
-   x = (x < 0) ? 0 : ( (x>=nx) ? nx-1 : x );
-   y = (y < 0) ? 0 : ( (y>=ny) ? ny-1 : y );
-   return (x+nx*y)*nz + z;
 }
 
 void bilateral_no_symmetry(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
@@ -110,7 +127,7 @@ void bilateral_grayscale(const float * f, float * h, int width, int height, doub
     }
 }
 
-void bilateral(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+void bilateral_color(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
      
     int win = 2 * sigma_d;
     
@@ -119,7 +136,7 @@ void bilateral(const float * f, float * h, int width, int height, int nch, doubl
             for (int l = 0; l < nch ; l++) {            
             
                 int x[2] = {i,j};
-                int _x = p_prolong_vec(width,height,nch,i,j,l);
+                int _x = p_prolong(width,height,i,j)*nch + l;
 
                 float k = 0;
                 float b = 0;
@@ -127,7 +144,7 @@ void bilateral(const float * f, float * h, int width, int height, int nch, doubl
                     for (int u = i - win; u < i + (win + 1); u++) {
 
                         int eps[2] = {u, v};
-                        int _eps = p_prolong_vec(width,height,nch,u,v,l);
+                        int _eps = p_prolong(width,height,u,v)*nch + l;
 
                         float cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
                         b+=f[_eps]*cs;                  
@@ -141,38 +158,33 @@ void bilateral(const float * f, float * h, int width, int height, int nch, doubl
     }
 }
 
-// TO DO:
-//
-// Similarity function uses:
-// float out[nch];
-// rgb_to_cielab_floats( out, &f[idx]);
-void bilateral_cielab(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
-     
+void bilateral_cielab(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+
     int win = 2 * sigma_d;
-    
-    for (int j = 0; j < height ; j++) {
-        for (int i = 0; i < width ; i++) {
-            for (int l = 0; l < nch ; l++) {            
-            
-                int x[2] = {i,j};
-                int _x = p_prolong_vec(width,height,nch,i,j,l);
 
-                float k = 0;
-                float b = 0;
-                for (int v = j - win; v < j + (win + 1); v++) {
-                    for (int u = i - win; u < i + (win + 1); u++) {
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
 
-                        int eps[2] = {u, v};
-                        int _eps = p_prolong_vec(width,height,nch,u,v,l);
+            int x[2] = {i, j};
+            int _x = p_prolong(width, height, i, j) * nch;
 
-                        float cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
-                        b+=f[_eps]*cs;                  
-                        k+=cs;
-                    }
+            float k = 0;
+            float b[3] = {0, 0, 0};
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
+
+                    int eps[2] = {u, v};
+                    int _eps = p_prolong(width, height, u, v) * nch;
+
+                    float cs = c(eps, x, sigma_d) * s_vec(&f[_eps], &f[_x], sigma_r, nch);
+                    for (int l = 0; l < nch; l++)   
+                        b[l] += f[_eps + l] * cs;
+                    k += cs;
                 }
-
-                h[_x] = (1.0/k) * b;
             }
+
+            for (int l = 0; l < nch; l++) 
+                h[_x + l] = (1.0 / k) * b[l];
         }
     }
 }

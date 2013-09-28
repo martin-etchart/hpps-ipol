@@ -22,8 +22,11 @@ set(bilateral_libs m png jpeg tiff)
 add_executable(test_bilateral_grayscale test_bilateral_grayscale.c ${bilateral_src})
 target_link_libraries(test_bilateral_grayscale ${bilateral_libs})
 
-add_executable(test_bilateral test_bilateral.c ${bilateral_src})
-target_link_libraries(test_bilateral ${bilateral_libs})
+add_executable(test_bilateral_color test_bilateral_color.c ${bilateral_src})
+target_link_libraries(test_bilateral_color ${bilateral_libs})
+
+add_executable(test_bilateral_cielab test_bilateral_cielab.c ${bilateral_src})
+target_link_libraries(test_bilateral_cielab ${bilateral_libs})
 
 if(OpenCV_FOUND)
     INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})

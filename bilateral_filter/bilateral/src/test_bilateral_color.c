@@ -17,7 +17,7 @@ int main () {
     
     float *img_out = malloc(w * h * nch * sizeof (float));
     
-    bilateral(img_in, img_out, w, h, nch, 30.0, 3.0);
+    bilateral_color(img_in, img_out, w, h, nch, 30.0, 3.0);
     
     iio_save_image_float_vec((char *)filename_out, img_out, w, h, nch);
     
