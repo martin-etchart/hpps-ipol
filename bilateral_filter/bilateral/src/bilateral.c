@@ -47,13 +47,13 @@ float s(float phi, float f, double sigma_r) {
 float s_vec(float *phi, float *f, double sigma_r, int nch) {
     float dist = 0;
     
-    float phi_cielab = 0;
-    float f_cielab = 0;
+    float phi_cielab[3];
+    float f_cielab[3];
+    rgb_to_cielab_floats(f_cielab, f);
+    rgb_to_cielab_floats(phi_cielab, phi);    
     
     for (int l = 0; l < nch; l++) {
-        rgb_to_cielab_floats( &f_cielab, f+l);
-        rgb_to_cielab_floats( &phi_cielab, phi+l);
-        dist+= powf(f_cielab-phi_cielab,2.0);
+        dist+= powf(f_cielab[l]-phi_cielab[l],2.0);
     }
     dist = sqrtf(dist);
     
