@@ -69,6 +69,19 @@ unsigned int p_prolong(int nx, int ny, int x, int y)
    return x+nx*y;
 }
 
+void closeness_matrix(float **mat, int win, double sigma_d) {
+    for (int v = - win; v < (win + 1); v++) {
+        for (int u = - win; u < (win + 1); u++) {
+            
+            int xo[2] = {0, 0};             
+            int eps[2] = {u, v};    
+            
+            mat[u+win][v+win] = exp(-0.5*powf((d(eps,xo)/sigma_d),2.0));
+    
+        }
+    }
+}
+
 void bilateral_no_symmetry(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
      
     int win = 2 * sigma_d;
@@ -117,6 +130,46 @@ void bilateral_grayscale(const float * f, float * h, int width, int height, doub
                     int _eps = p_prolong(width,height,u,v);
                     
                     float cs = c(eps,x,sigma_d)*s(f[_eps],f[_x],sigma_r);
+                    b+=f[_eps]*cs;                  
+                    k+=cs;
+                }
+            }
+            
+            h[_x] = (1.0/k) * b;
+        }
+    }
+}
+
+void bilateral_grayscale_2(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
+     
+    int win = 2 * sigma_d;
+    
+    float **c_mat = malloc((2*win+1) * sizeof(float*));
+    for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
+    
+    closeness_matrix(c_mat,win,sigma_d);
+    for (int j=0 ; j<(2*win+1) ; j++) {
+        for (int i=0 ; i<(2*win+1) ; i++) {
+            printf("%2.2f,",c_mat[i][j]);
+        }
+        printf("\n");
+    }
+    
+    for (int j = 0; j < height ; j++) {
+        for (int i = 0; i < width ; i++) {
+            
+            int x[2] = {i,j};
+            int _x = p_prolong(width,height,i,j);
+            
+            float k = 0;
+            float b = 0;
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
+                    
+                    int eps[2] = {u, v};
+                    int _eps = p_prolong(width,height,u,v);
+                    
+                    float cs = c_mat[u-(i-win)][v-(j-win)]*s(f[_eps],f[_x],sigma_r);
                     b+=f[_eps]*cs;                  
                     k+=cs;
                 }

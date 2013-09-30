@@ -15,4 +15,6 @@ void bilateral_color(const float * f, float * h, int width, int height, int nch,
  */
 void bilateral_grayscale(const float * f, float * h, int width, int height, double sigma_r, double sigma_d);
 
+void bilateral_grayscale_2(const float * f, float * h, int width, int height, double sigma_r, double sigma_d);
+
 #endif

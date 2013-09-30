@@ -7,8 +7,8 @@
 
 int main(int argc, char *argv[]) {
 
-    double sigma_r = 3.0;    
-    double sigma_d = 30.0;
+    double sigma_r = 30.0;
+    double sigma_d = 3.0;
     const char * filename_in = "../../data/Lena.ppm";
 
     if (argc > 1)   filename_in = argv[1];

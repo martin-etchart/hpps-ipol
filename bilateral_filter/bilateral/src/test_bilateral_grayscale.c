@@ -24,8 +24,8 @@ double *iio_read_image_double_(const char *fname, int *w, int *h) {
 
 int main(int argc, char *argv[]) {
 
-    double sigma_r = 3.0;    
-    double sigma_d = 30.0;
+    double sigma_r = 30.0;    
+    double sigma_d = 3.0;
     const char * filename_in = "../../data/Lena.pgm";
 
     if (argc > 1)   filename_in = argv[1];
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     if (argc > 3)   sigma_d = atof(argv[3]);
     
     char filename_out[100];
-    sprintf(filename_out,"%s.greyscale.out.png",filename_in);
+    sprintf(filename_out,"%s.grayscale.out.png",filename_in);
 
     int w = 0;
     int h = 0;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     
     float *img_out = malloc(w * h * sizeof (float));
     
-    bilateral_grayscale(img_in, img_out, w, h, 30.0, 3.0);
+    bilateral_grayscale_2(img_in, img_out, w, h, sigma_r, sigma_d);
     
     iio_save_image_float(filename_out, img_out, w, h);
     
