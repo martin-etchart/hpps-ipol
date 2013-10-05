@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
 
-    double sigma_r = 30.0;
+    double sigma_r = 30.0/2.56;
     double sigma_d = 3.0;
     const char * filename_in = "../../data/Lena.ppm";
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     float *img_out = malloc(w * h * nch * sizeof (float));
 
-    bilateral_cielab(img_in, img_out, w, h, nch, sigma_r, sigma_d);
+    bilateral_cielab_2(img_in, img_out, w, h, nch, sigma_r, sigma_d);
 
     iio_save_image_float_vec( filename_out, img_out, w, h, nch);
 

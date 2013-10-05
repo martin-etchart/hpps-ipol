@@ -9,9 +9,11 @@ cmake_minimum_required(VERSION 2.6)
 
 find_package(OpenCV)
 
-set(CMAKE_C_FLAGS "-g -std=c99 ") #-pedantic-errors -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99") 
+#add_definitions(-Wall -Wno-deprecated -pedantic-errors -Wextra -Werror)
 set(CMAKE_L_FLAGS)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-D_ENGLISH")
 

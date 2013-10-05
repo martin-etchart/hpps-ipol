@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-float d(int eps[2], int x[2]) {
+static inline float d(int eps[2], int x[2]) {
     return hypot(eps[0]-x[0], eps[1]-x[1]);
 }
 
@@ -17,11 +17,11 @@ float d(int eps[2], int x[2]) {
  * @param sigma_d
  * @return 
  */
-float c(int eps[2], int x[2], double sigma_d) {
-    return exp(-0.5*powf((d(eps,x)/sigma_d),2.0));
+static inline float c(int eps[2], int x[2], double sigma_d) {
+    return expf(-0.5*powf((d(eps,x)/sigma_d),2.0));
 }
 
-float delta(float phi, float f) {
+static inline float delta(float phi, float f) {
     return fabs(phi-f);    
 }
 
@@ -32,8 +32,8 @@ float delta(float phi, float f) {
  * @param sigma_r
  * @return 
  */
-float s(float phi, float f, double sigma_r) {
-    return exp(-0.5*powf((delta(phi,f)/sigma_r),2.0));
+static inline float s(float phi, float f, double sigma_r) {
+    return expf(-0.5*powf((delta(phi,f)/sigma_r),2.0));
 }
 
 /**
@@ -44,7 +44,7 @@ float s(float phi, float f, double sigma_r) {
  * @param nch
  * @return 
  */
-float s_vec(float *phi, float *f, double sigma_r, int nch) {
+static inline float s_vec(float *phi, float *f, double sigma_r, int nch) {
     float dist = 0;
     
     float phi_cielab[3];
@@ -57,12 +57,12 @@ float s_vec(float *phi, float *f, double sigma_r, int nch) {
     }
     dist = sqrtf(dist);
     
-    return exp(-0.5*powf((dist/sigma_r),2.0));
+    return expf(-0.5*powf((dist/sigma_r),2.0));
 }
 
 // prolong with last value at the boundary
 // returns the index of the 2d row major image
-unsigned int p_prolong(int nx, int ny, int x, int y) 
+static inline unsigned int p_prolong(int nx, int ny, int x, int y) 
 { 
    x = (x < 0) ? 0 : ( (x>=nx) ? nx-1 : x );
    y = (y < 0) ? 0 : ( (y>=ny) ? ny-1 : y );
@@ -148,17 +148,10 @@ void bilateral_grayscale_2(const float * f, float * h, int width, int height, do
     for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
     
     closeness_matrix(c_mat,win,sigma_d);
-    for (int j=0 ; j<(2*win+1) ; j++) {
-        for (int i=0 ; i<(2*win+1) ; i++) {
-            printf("%2.2f,",c_mat[i][j]);
-        }
-        printf("\n");
-    }
     
     for (int j = 0; j < height ; j++) {
         for (int i = 0; i < width ; i++) {
             
-            int x[2] = {i,j};
             int _x = p_prolong(width,height,i,j);
             
             float k = 0;
@@ -166,7 +159,6 @@ void bilateral_grayscale_2(const float * f, float * h, int width, int height, do
             for (int v = j - win; v < j + (win + 1); v++) {
                 for (int u = i - win; u < i + (win + 1); u++) {
                     
-                    int eps[2] = {u, v};
                     int _eps = p_prolong(width,height,u,v);
                     
                     float cs = c_mat[u-(i-win)][v-(j-win)]*s(f[_eps],f[_x],sigma_r);
@@ -178,6 +170,9 @@ void bilateral_grayscale_2(const float * f, float * h, int width, int height, do
             h[_x] = (1.0/k) * b;
         }
     }
+    
+    for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
+    free(c_mat);
 }
 
 void bilateral_color(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
@@ -211,6 +206,43 @@ void bilateral_color(const float * f, float * h, int width, int height, int nch,
     }
 }
 
+void bilateral_color_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+     
+    int win = 2 * sigma_d;
+    
+    float **c_mat = malloc((2*win+1) * sizeof(float*));
+    for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
+    
+    closeness_matrix(c_mat,win,sigma_d);
+    
+    for (int j = 0; j < height ; j++) {
+        for (int i = 0; i < width ; i++) {
+            for (int l = 0; l < nch ; l++) {
+
+                int _x = p_prolong(width, height, i, j) * nch + l;
+
+                float k = 0;
+                float b = 0;
+                for (int v = j - win; v < j + (win + 1); v++) {
+                    for (int u = i - win; u < i + (win + 1); u++) {
+
+                        int _eps = p_prolong(width, height, u, v) * nch + l;
+
+                        float cs = c_mat[u - (i - win)][v - (j - win)] * s(f[_eps], f[_x], sigma_r);
+                        b += f[_eps] * cs;
+                        k += cs;
+                    }
+                }
+
+                h[_x] = (1.0 / k) * b;
+            }
+        }
+    }
+    
+    for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
+    free(c_mat);
+}
+
 void bilateral_cielab(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
 
     int win = 2 * sigma_d;
@@ -240,4 +272,43 @@ void bilateral_cielab(float * f, float * h, int width, int height, int nch, doub
                 h[_x + l] = (1.0 / k) * b[l];
         }
     }
+}
+
+void bilateral_cielab_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+
+    int win = 2 * sigma_d;
+    
+    float **c_mat = malloc((2*win+1) * sizeof(float*));
+    for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
+    
+    closeness_matrix(c_mat,win,sigma_d); 
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+
+            int x[2] = {i, j};
+            int _x = p_prolong(width, height, i, j) * nch;
+
+            float k = 0;
+            float b[3] = {0, 0, 0};
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
+
+                    int eps[2] = {u, v};
+                    int _eps = p_prolong(width, height, u, v) * nch;
+
+                    float cs = c_mat[u - (i - win)][v - (j - win)] * s_vec(&f[_eps], &f[_x], sigma_r, nch);
+                    for (int l = 0; l < nch; l++)   
+                        b[l] += f[_eps + l] * cs;
+                    k += cs;
+                }
+            }
+
+            for (int l = 0; l < nch; l++) 
+                h[_x + l] = (1.0 / k) * b[l];
+        }
+    }
+    
+    for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
+    free(c_mat);
 }
