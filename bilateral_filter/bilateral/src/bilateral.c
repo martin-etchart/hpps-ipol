@@ -44,7 +44,7 @@ static inline float s(float phi, float f, double sigma_r) {
  * @param nch
  * @return 
  */
-static inline float s_vec(float *phi, float *f, double sigma_r, int nch) {
+static inline float s_vec_cielab(float *phi, float *f, double sigma_r, int nch) {
     float dist = 0;
     
     float phi_cielab[3];
@@ -54,6 +54,17 @@ static inline float s_vec(float *phi, float *f, double sigma_r, int nch) {
     
     for (int l = 0; l < nch; l++) {
         dist+= powf(f_cielab[l]-phi_cielab[l],2.0);
+    }
+    dist = sqrtf(dist);
+    
+    return expf(-0.5*powf((dist/sigma_r),2.0));
+}
+
+static inline float s_vec(float *phi, float *f, double sigma_r, int nch) {
+    float dist = 0;  
+    
+    for (int l = 0; l < nch; l++) {
+        dist+= powf(f[l]-phi[l],2.0);
     }
     dist = sqrtf(dist);
     
@@ -78,6 +89,17 @@ void closeness_matrix(float **mat, int win, double sigma_d) {
             
             mat[u+win][v+win] = exp(-0.5*powf((d(eps,xo)/sigma_d),2.0));
     
+        }
+    }
+}
+
+void convert_rgb_to_cielab(float *f, float *f_cielab, int width, int height, int nch) {
+    
+    for (int j = 0; j < height ; j++) {
+        for (int i = 0; i < width ; i++) {
+            
+            int idx = (i+width*j)*nch;
+            rgb_to_cielab_floats(f_cielab+idx, f+idx);
         }
     }
 }
@@ -261,7 +283,7 @@ void bilateral_cielab(float * f, float * h, int width, int height, int nch, doub
                     int eps[2] = {u, v};
                     int _eps = p_prolong(width, height, u, v) * nch;
 
-                    float cs = c(eps, x, sigma_d) * s_vec(&f[_eps], &f[_x], sigma_r, nch);
+                    float cs = c(eps, x, sigma_d) * s_vec_cielab(&f[_eps], &f[_x], sigma_r, nch);
                     for (int l = 0; l < nch; l++)   
                         b[l] += f[_eps + l] * cs;
                     k += cs;
@@ -297,7 +319,7 @@ void bilateral_cielab_2(float * f, float * h, int width, int height, int nch, do
                     int eps[2] = {u, v};
                     int _eps = p_prolong(width, height, u, v) * nch;
 
-                    float cs = c_mat[u - (i - win)][v - (j - win)] * s_vec(&f[_eps], &f[_x], sigma_r, nch);
+                    float cs = c_mat[u - (i - win)][v - (j - win)] * s_vec_cielab(&f[_eps], &f[_x], sigma_r, nch);
                     for (int l = 0; l < nch; l++)   
                         b[l] += f[_eps + l] * cs;
                     k += cs;
@@ -311,4 +333,48 @@ void bilateral_cielab_2(float * f, float * h, int width, int height, int nch, do
     
     for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
     free(c_mat);
+}
+
+void bilateral_cielab_3(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+
+    int win = 2 * sigma_d;
+    
+    float **c_mat = malloc((2*win+1) * sizeof(float*));
+    for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
+    
+    closeness_matrix(c_mat,win,sigma_d);
+
+    float *f_cielab = malloc(width * height * nch * sizeof(float));    
+    convert_rgb_to_cielab(f,f_cielab,width,height,nch);
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+
+            int x[2] = {i, j};
+            int _x = p_prolong(width, height, i, j) * nch;
+
+            float k = 0;
+            float b[3] = {0, 0, 0};
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
+
+                    int eps[2] = {u, v};
+                    int _eps = p_prolong(width, height, u, v) * nch;
+
+                    float cs = c_mat[u - (i - win)][v - (j - win)] * s_vec(&f_cielab[_eps], &f_cielab[_x], sigma_r, nch);
+                    for (int l = 0; l < nch; l++)   
+                        b[l] += f[_eps + l] * cs;
+                    k += cs;
+                }
+            }
+
+            for (int l = 0; l < nch; l++) 
+                h[_x + l] = (1.0 / k) * b[l];
+        }
+    }
+    
+    for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
+    free(c_mat);
+    
+    free(f_cielab);
 }
