@@ -5,8 +5,9 @@ void bilateral_cielab(float * f, float * h, int width, int height, int nch, doub
 void bilateral_cielab_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
 void bilateral_cielab_3(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
 
-void bilateral_color(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
-void bilateral_color_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
+void bilateral_rgb(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
+void bilateral_rgb_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
+void bilateral_rgb_3(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d);
 
 /**
  * Bilateral filter. Implementation of paper "Bilateral Filtering for Gray and Color Images" by C. Tomasi and R. Manduchi.

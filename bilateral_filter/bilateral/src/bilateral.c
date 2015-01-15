@@ -60,6 +60,16 @@ static inline float s_vec_cielab(float *phi, float *f, double sigma_r, int nch) 
     return expf(-0.5*powf((dist/sigma_r),2.0));
 }
 
+static inline float s_vec_nopowf(float *phi, float *f, double sigma_r, int nch) {
+    float dist = 0;  
+    
+    for (int l = 0; l < nch; l++) {
+        dist+=(f[l]-phi[l])*(f[l]-phi[l]);
+    }
+    
+    return expf(-0.5*(dist/sigma_r*sigma_r));
+}
+
 static inline float s_vec(float *phi, float *f, double sigma_r, int nch) {
     float dist = 0;  
     
@@ -77,6 +87,15 @@ static inline unsigned int p_prolong(int nx, int ny, int x, int y)
 { 
    x = (x < 0) ? 0 : ( (x>=nx) ? nx-1 : x );
    y = (y < 0) ? 0 : ( (y>=ny) ? ny-1 : y );
+   return x+nx*y;
+}
+
+// prolong with the symmetrical value from inside the boundary
+// returns the index of the 2d row major image
+static inline unsigned int p_symmetry(int nx, int ny, int x, int y) 
+{ 
+   x = (x < 0) ? -x : ( (x>=nx) ? 2*(nx-1)-x : x ); //nx-1-(x-(nx-1))
+   y = (y < 0) ? -y : ( (y>=ny) ? 2*(ny-1)-y : y ); //ny-1-(y-(ny-1))
    return x+nx*y;
 }
 
@@ -197,7 +216,7 @@ void bilateral_grayscale_2(const float * f, float * h, int width, int height, do
     free(c_mat);
 }
 
-void bilateral_color(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+void bilateral_rgb(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
      
     int win = 2 * sigma_d;
     
@@ -228,7 +247,7 @@ void bilateral_color(const float * f, float * h, int width, int height, int nch,
     }
 }
 
-void bilateral_color_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+void bilateral_rgb_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
      
     int win = 2 * sigma_d;
     
@@ -258,6 +277,45 @@ void bilateral_color_2(float * f, float * h, int width, int height, int nch, dou
 
                 h[_x] = (1.0 / k) * b;
             }
+        }
+    }
+    
+    for (int i=0 ; i<(2*win+1) ; i++) free(c_mat[i]);
+    free(c_mat);
+}
+
+void bilateral_rgb_3(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
+
+    int win = 2 * sigma_d;
+    
+    float **c_mat = malloc((2*win+1) * sizeof(float*));
+    for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
+    
+    closeness_matrix(c_mat,win,sigma_d);
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+
+            int x[2] = {i, j};
+            int _x = p_prolong(width, height, i, j) * nch;
+
+            float k = 0;
+            float b[3] = {0, 0, 0};
+            for (int v = j - win; v < j + (win + 1); v++) {
+                for (int u = i - win; u < i + (win + 1); u++) {
+
+                    int eps[2] = {u, v};
+                    int _eps = p_prolong(width, height, u, v) * nch;
+
+                    float cs = c_mat[u - (i - win)][v - (j - win)] * s_vec(&f[_eps], &f[_x], sigma_r, nch);
+                    for (int l = 0; l < nch; l++)   
+                        b[l] += f[_eps + l] * cs;
+                    k += cs;
+                }
+            }
+
+            for (int l = 0; l < nch; l++) 
+                h[_x + l] = (1.0 / k) * b[l];
         }
     }
     
