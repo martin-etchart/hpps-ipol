@@ -37,3 +37,6 @@ if(OpenCV_FOUND)
     add_executable(test_bilateral_opencv test_bilateral_opencv.c ${bilateral_src})
     target_link_libraries(test_bilateral_opencv ${bilateral_libs} ${OpenCV_LIBS})
 endif(OpenCV_FOUND)
+
+add_executable(bilateral_ipol bilateral_ipol.c ${bilateral_src})
+target_link_libraries(bilateral_ipol ${bilateral_libs})

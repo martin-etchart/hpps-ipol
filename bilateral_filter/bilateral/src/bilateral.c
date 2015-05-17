@@ -125,7 +125,7 @@ void convert_rgb_to_cielab(float *f, float *f_cielab, int width, int height, int
 
 void bilateral_no_symmetry(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
      
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     for (int j = win; j < height - (win + 1); j++) {
         for (int i = win; i < width - (win + 1); i++) {
@@ -154,7 +154,7 @@ void bilateral_no_symmetry(const float * f, float * h, int width, int height, do
 
 void bilateral_grayscale(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
      
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     for (int j = 0; j < height ; j++) {
         for (int i = 0; i < width ; i++) {
@@ -183,7 +183,7 @@ void bilateral_grayscale(const float * f, float * h, int width, int height, doub
 
 void bilateral_grayscale_2(const float * f, float * h, int width, int height, double sigma_r, double sigma_d) {
      
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     float **c_mat = malloc((2*win+1) * sizeof(float*));
     for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
@@ -218,7 +218,7 @@ void bilateral_grayscale_2(const float * f, float * h, int width, int height, do
 
 void bilateral_rgb(const float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
      
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     for (int j = 0; j < height ; j++) {
         for (int i = 0; i < width ; i++) {
@@ -249,7 +249,7 @@ void bilateral_rgb(const float * f, float * h, int width, int height, int nch, d
 
 void bilateral_rgb_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
      
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     float **c_mat = malloc((2*win+1) * sizeof(float*));
     for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
@@ -286,7 +286,7 @@ void bilateral_rgb_2(float * f, float * h, int width, int height, int nch, doubl
 
 void bilateral_rgb_3(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
 
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     float **c_mat = malloc((2*win+1) * sizeof(float*));
     for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));
@@ -325,7 +325,7 @@ void bilateral_rgb_3(float * f, float * h, int width, int height, int nch, doubl
 
 void bilateral_cielab(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
 
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
 
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
@@ -356,7 +356,7 @@ void bilateral_cielab(float * f, float * h, int width, int height, int nch, doub
 
 void bilateral_cielab_2(float * f, float * h, int width, int height, int nch, double sigma_r, double sigma_d) {
 
-    int win = 2 * sigma_d;
+    int win = 3 * sigma_d;
     
     float **c_mat = malloc((2*win+1) * sizeof(float*));
     for (int i=0 ; i<(2*win+1) ; i++) c_mat[i] = malloc((2*win+1) * sizeof(float));

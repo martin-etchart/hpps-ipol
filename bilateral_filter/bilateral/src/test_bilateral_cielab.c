@@ -10,13 +10,15 @@ int main(int argc, char *argv[]) {
     double sigma_r = 30.0/2.56;
     double sigma_d = 3.0;
     const char * filename_in = "../../data/Lena.ppm";
+    const char * filename_out = "../../data/Lena.cielab.out.png";    
 
     if (argc > 1)   filename_in = argv[1];
-    if (argc > 2)   sigma_r = atof(argv[2]);
-    if (argc > 3)   sigma_d = atof(argv[3]);
+    if (argc > 2)   filename_out = argv[2];  
+    if (argc > 3)   sigma_r = atof(argv[3]);
+    if (argc > 4)   sigma_d = atof(argv[4]);
     
-    char filename_out[100];
-    sprintf(filename_out,"%s.cielab.out.png",filename_in);
+//    char filename_out[100];
+//    sprintf(filename_out,"%s.cielab.out.png",filename_in);
 
     int w = 0;
     int h = 0;
