@@ -14,8 +14,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 set(CMAKE_L_FLAGS)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-D_ENGLISH")
+
+include_directories(/usr/local/include)
+link_directories(/usr/local/lib)
 
 set(bilateral_src bilateral.c iio.c color_spaces.c)
 set(bilateral_inc bilateral.h iio.h color_spaces.h)

@@ -9,14 +9,14 @@ int main(int argc, char *argv[]) {
 
     double sigma_r = 30.0;
     double sigma_d = 3.0;
-    const char * filename_in = "../../data/Lena.ppm";
+    const char * filename_in = "../../../data/balls.png";
 
     if (argc > 1)   filename_in = argv[1];
     if (argc > 2)   sigma_r = atof(argv[2]);
     if (argc > 3)   sigma_d = atof(argv[3]);
     
     char filename_out[100];
-    sprintf(filename_out,"%s.color.out.png",filename_in);
+    sprintf(filename_out,"%s.rgb.2.out.png",filename_in);
 
     int w = 0;
     int h = 0;
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     float *img_out = malloc(w * h * nch * sizeof (float));
 
-    bilateral_rgb_3(img_in, img_out, w, h, nch, sigma_r, sigma_d);
+    bilateral_rgb_2(img_in, img_out, w, h, nch, sigma_r, sigma_d);
 
     iio_save_image_float_vec( filename_out, img_out, w, h, nch);
 

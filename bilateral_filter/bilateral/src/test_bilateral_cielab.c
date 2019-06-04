@@ -9,8 +9,8 @@ int main(int argc, char *argv[]) {
 
     double sigma_r = 30.0/2.56;
     double sigma_d = 3.0;
-    const char * filename_in = "../../data/Lena.ppm";
-    const char * filename_out = "../../data/Lena.cielab.out.png";    
+    const char * filename_in = "../../../data/balls.png";
+    const char * filename_out = "../../../data/balls.cielab.out.png";
 
     if (argc > 1)   filename_in = argv[1];
     if (argc > 2)   filename_out = argv[2];  

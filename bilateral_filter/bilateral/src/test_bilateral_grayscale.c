@@ -24,11 +24,11 @@ double *iio_read_image_double_(const char *fname, int *w, int *h) {
 
 int main(int argc, char *argv[]) {
 
-    double sigma_r = 30.0;    
     double sigma_d = 3.0;
+    double sigma_r = 30.0;
     
-    const char * filename_in = "../../data/Lena.pgm";
-    const char * filename_out = "../../data/Lena.grayscale.out.png";
+    const char * filename_in = "../../../data/barbara.pgm";
+    const char * filename_out = "../../../data/barbara.grayscale.out.3.30.png";
 //    char filename_out[100];
 //    sprintf(filename_out,"%s.grayscale.out.png",filename_in);    
     
